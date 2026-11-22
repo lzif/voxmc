@@ -1,0 +1,40 @@
+{
+  "name": "voxmc",
+  "version": "0.0.3",
+  "private": true,
+  "description": "Programmatic Minecraft build engine and Agent Skill: AI agents script builds and export .schem, .litematic, .nbt and .mcstructure, with a browser 3D preview and editor.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "packageManager": "pnpm@12.16.1",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.16.1",
+      "onFail": "download"
+    }
+  },
+  "scripts": {
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "typecheck": "pnpm -r --if-present run typecheck && tsc -p scripts/tsconfig.json",
+    "test": "vitest run",
+    "test:touch": "pnpm --filter voxmc-web test:touch",
+    "depcheck": "depcruise --config .dependency-cruiser.cjs .",
+    "gate:names": "node scripts/gate-names.ts",
+    "gate:packages": "node scripts/gate-packages.ts",
+    "gate:depcruise": "node scripts/gate-depcruise.ts",
+    "gate:skills": "node scripts/gate-skills.ts",
+    "pack:npm": "node scripts/pack-npm.ts",
+    "convert": "node scripts/convert.ts",
+    "licenses": "node scripts/licenses.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.4",
+    "@types/node": "^22.20.5",
+    "dependency-cruiser": "^18.7.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

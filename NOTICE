@@ -1,0 +1,78 @@
+voxmc
+
+Parts of this repository are derived from an earlier Python implementation by
+the same author, which is licensed under the MIT License. The derived parts
+are:
+
+  packages/voxmc/src            the TypeScript port of that implementation's
+                                modules
+  packages/voxmc/bin            the voxmc command
+  packages/voxmc/examples       the example build scripts, ported from Python
+  packages/voxmc/test           tests ported from its test suite
+  packages/render/src           the renderer, previews and guide ported from
+                                its render, guide and views modules
+                                (the WebGL and section-mesher code under
+                                packages/render/src/mesh and
+                                packages/render/src/webgl is new)
+  packages/core/src/blocks      block string parsing, ported from it
+  packages/core/src/rotation    structure rotation, ported from it
+  vectors/*.json                the golden vectors exported from it
+
+The repository as a whole is licensed AGPL-3.0-only (see LICENSE). That does
+not change here. The MIT notice below is kept with the derived parts, as the
+MIT License requires.
+
+----------------------------------------------------------------------------
+
+The npm file
+
+The npm package voxmc is a single file, voxmc.mjs, built by scripts/pack-npm.ts
+from packages/voxmc, packages/core and the software renderer of
+packages/render. It also contains the third-party packages those sources use
+at run time, each with its licence text in the header of the file (at the time
+of writing: fflate, MIT; pngjs, MIT; smol-toml, BSD-3-Clause).
+
+----------------------------------------------------------------------------
+
+Fonts
+
+The web app (apps/web) serves two typefaces from apps/web/static/fonts/, both
+under the SIL Open Font License, Version 1.1. The licence text of each is
+beside its files, and is published with them:
+
+  Pixelify Sans   PixelifySans-Regular.woff2, PixelifySans-Bold.woff2
+                  Copyright 2021 The Pixelify Sans Project Authors
+                  (https://github.com/eifetx/Pixelify-Sans)
+                  licence: PixelifySans-OFL.txt
+
+  Noto Sans       NotoSans-Regular.woff2, NotoSans-Bold.woff2
+                  Copyright 2022 The Noto Project Authors
+                  (https://github.com/notofonts/latin-greek-cyrillic)
+                  licence: NotoSans-OFL.txt
+
+They are Latin subsets of the fonts, converted to woff2; neither licence
+names a Reserved Font Name.
+
+----------------------------------------------------------------------------
+
+MIT License
+
+Copyright (c) 2026 lzif
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

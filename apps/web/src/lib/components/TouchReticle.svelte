@@ -1,0 +1,132 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<script lang="ts">
+import type { EditSession } from "../editor-session.svelte.ts";
+
+let { session }: { session: EditSession } = $props();
+const reticle = $derived(session.reticle);
+// The stem runs from the rim of the contact circle to the rim of the target ring, 14 and 12 px
+// out from their centers. With the cursor close to the finger (the Cursor distance setting) there is
+// no gap to draw it in.
+const showStem = $derived(reticle !== null && reticle.touchY - reticle.reticleY > 14 + 12);
+</script>
+
+{#if reticle && reticle.active}
+  <div class="reticle-container" data-testid="reticle-overlay" aria-hidden="true">
+    <svg
+      class="touch-reticle"
+      data-testid="reticle-indicator"
+    >
+      <!-- Connecting stem line from finger contact to reticle target -->
+      {#if showStem}
+        <line
+          x1={reticle.touchX}
+          y1={reticle.touchY - 14}
+          x2={reticle.reticleX}
+          y2={reticle.reticleY + 12}
+          class="reticle-stem"
+        />
+      {/if}
+      <!-- Touch contact circle at finger -->
+      <circle
+        cx={reticle.touchX}
+        cy={reticle.touchY}
+        r="14"
+        class="reticle-contact"
+      />
+      <!-- Target reticle ring, the cursor distance above the finger -->
+      <circle
+        cx={reticle.reticleX}
+        cy={reticle.reticleY}
+        r="12"
+        class="reticle-target"
+        class:has-hit={reticle.hit !== null}
+      />
+      <!-- Cardinal ticks on target reticle -->
+      <line
+        x1={reticle.reticleX - 16}
+        y1={reticle.reticleY}
+        x2={reticle.reticleX - 8}
+        y2={reticle.reticleY}
+        class="reticle-tick"
+      />
+      <line
+        x1={reticle.reticleX + 8}
+        y1={reticle.reticleY}
+        x2={reticle.reticleX + 16}
+        y2={reticle.reticleY}
+        class="reticle-tick"
+      />
+      <line
+        x1={reticle.reticleX}
+        y1={reticle.reticleY - 16}
+        x2={reticle.reticleX}
+        y2={reticle.reticleY - 8}
+        class="reticle-tick"
+      />
+      <line
+        x1={reticle.reticleX}
+        y1={reticle.reticleY + 8}
+        x2={reticle.reticleX}
+        y2={reticle.reticleY + 16}
+        class="reticle-tick"
+      />
+      <!-- Center dot -->
+      <circle
+        cx={reticle.reticleX}
+        cy={reticle.reticleY}
+        r="2"
+        class="reticle-dot"
+      />
+    </svg>
+  </div>
+{/if}
+
+<style>
+  /* Client coordinates are measured from the top left of the viewport, as are these. */
+  .reticle-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 45;
+  }
+  /* White marks with a hard 2 px halo in the outline colour (four offset copies, no blur), so they
+     read on a white wool block and on a black one alike. */
+  .touch-reticle {
+    --halo: drop-shadow(2px 0 0 var(--outline)) drop-shadow(-2px 0 0 var(--outline))
+      drop-shadow(0 2px 0 var(--outline)) drop-shadow(0 -2px 0 var(--outline));
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .reticle-stem {
+    stroke: var(--ink);
+    stroke-width: 2;
+    stroke-dasharray: 3 3;
+    filter: var(--halo);
+  }
+  .reticle-contact {
+    fill: var(--ink);
+    fill-opacity: 0.25;
+    stroke: var(--ink-muted);
+    stroke-width: 2;
+  }
+  /* Over a block the ring is green; over nothing it is the muted ink. */
+  .reticle-target {
+    fill: none;
+    stroke: var(--ink-muted);
+    stroke-width: 2;
+    filter: var(--halo);
+    transition: stroke 0.1s ease;
+  }
+  .reticle-target.has-hit {
+    stroke: var(--tag-primary);
+  }
+  .reticle-tick {
+    stroke: var(--ink);
+    stroke-width: 2;
+    filter: var(--halo);
+  }
+  .reticle-dot {
+    fill: var(--ink);
+  }
+</style>

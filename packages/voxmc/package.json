@@ -1,0 +1,26 @@
+{
+  "name": "voxmc-engine",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Programmatic Minecraft build engine, a TypeScript port of the Python reference implementation: builder DSL, shapes, materials, block validation and structure export, for AI agents and scripts.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./node": "./src/node/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "voxmc-core": "workspace:*",
+    "fflate": "^0.8.3",
+    "smol-toml": "^1.9.1",
+    "voxmc-render": "workspace:*"
+  },
+  "bin": {
+    "voxmc": "./bin/voxmc.ts"
+  }
+}

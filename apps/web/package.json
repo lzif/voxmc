@@ -1,0 +1,32 @@
+{
+  "name": "voxmc-web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Browser 3D viewer and editor for Minecraft schematics: the human-in-the-loop companion for previewing, inspecting, fixing and exporting generated builds.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "assets": "node scripts/build-pack.ts",
+    "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "test:touch": "node test/touch-e2e.ts"
+  },
+  "dependencies": {
+    "voxmc-core": "workspace:*",
+    "voxmc-render": "workspace:*",
+    "fflate": "^0.8.3"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^4.0.1",
+    "@sveltejs/kit": "^3.1.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "axe-core": "^4.14.0",
+    "puppeteer-core": "^25.16.0",
+    "svelte": "^5.57.3",
+    "svelte-check": "^4.7.8",
+    "vite": "^8.3.5"
+  }
+}

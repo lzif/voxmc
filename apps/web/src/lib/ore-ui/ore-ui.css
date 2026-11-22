@@ -1,0 +1,352 @@
+/* Ore UI Study components, from Luki's "Ore UI Study" design system, version 3
+ * (components/bundle.css of the design system, unchanged below this comment).
+ *
+ * Load tokens.css first: every colour, space and radius here is a custom property it defines.
+ * tokens.css is generated from tokens.json; see docs/design-system.md.
+ *
+ * Kept as supplied, one rule per line, so it can be compared with a newer version of the design
+ * system. Biome is told to leave its layout and its selector order alone for that reason.
+ */
+/* biome-ignore-all format: kept as supplied, one rule per line */
+/* biome-ignore-all lint/style/noDescendingSpecificity: the state rules are ordered as the design system has them */
+
+/* Ore UI Study components. Every color reads a token from tokens.css.
+   One design unit is 2px: outlines, bevel lines and bands are 1, 1 and 2 units. Values measured from the Ore UI state sheets. */
+
+.ore-btn, .ore-seg, .ore-tab, .ore-input, .ore-switch { box-sizing: border-box; font-family: inherit; }
+
+/* Focus: a 2px white ring drawn directly outside the control outline */
+.ore-btn:focus-visible, .ore-seg:focus-visible, .ore-tab:focus-visible, .ore-switch:focus-visible .ore-switch__thumb,
+.ore-slider__input:focus-visible::-webkit-slider-thumb, .ore-choice__input:focus-visible + .ore-box,
+.ore-dialog__icon:focus-visible { outline: 2px solid var(--focus); outline-offset: 0; }
+.ore-slider__input:focus-visible::-moz-range-thumb { outline: 2px solid var(--focus); outline-offset: 0; }
+.ore-input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ore-btn:focus-visible, .ore-seg:focus-visible, .ore-tab:focus-visible, .ore-dialog__icon:focus-visible, .ore-slider__input:focus-visible, .ore-switch:focus-visible { z-index: 1; }
+.ore-slider__input:focus-visible, .ore-switch:focus-visible { outline: none; }
+
+/* Bevelled faces: button, toggle segment, tab.
+   Set --bf face, --bh top/left line, --bl bottom/right line, --be band. --band is 4px (2 units) in the game and 0 inside .ore-editor. */
+.ore-btn, .ore-seg, .ore-tab {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: 44px; padding: 0 var(--space-4) 4px; border: 2px solid var(--outline); border-radius: var(--radius-none);
+  background: var(--bf); color: var(--bt, var(--ink)); cursor: pointer;
+  box-shadow: inset 0 calc(var(--band, 4px) * -1) 0 var(--be), inset 2px 2px 0 var(--bh), inset -2px calc(-2px - var(--band, 4px)) 0 var(--bl);
+}
+.ore-btn { --bt: var(--ink); }
+
+/* Button: hero and primary are green, secondary is light, destructive is red */
+.ore-btn--hero, .ore-btn--primary { --bf: var(--green); --bh: var(--green-hi); --bl: var(--green-lo); --be: var(--green-edge); }
+.ore-btn--hero:hover:not(:disabled), .ore-btn--primary:hover:not(:disabled) { --bf: var(--green-hover); --bh: var(--green-hover-hi); --bl: var(--green-hover-lo); }
+.ore-btn--hero:active:not(:disabled), .ore-btn--primary:active:not(:disabled) { --bf: var(--green-pressed); --bh: var(--green-pressed-hi); --bl: var(--green-pressed-lo); }
+.ore-btn--hero { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; text-shadow: 2px 2px 0 var(--green-shade); }
+.ore-btn--secondary { --bf: var(--light-200); --bh: var(--light-200-hi); --bl: var(--light-200-lo); --be: var(--surface-raised); --bt: var(--ink-dark); }
+.ore-btn--secondary:hover:not(:disabled) { --bf: var(--light-100); --bh: var(--light-100-hi); --bl: var(--light-100-lo); }
+.ore-btn--secondary:active:not(:disabled) { --bf: var(--light-300); --bh: var(--light-300-hi); --bl: var(--light-300-lo); }
+.ore-btn--dark { --bf: var(--surface-panel); --bh: var(--panel-hi-strong); --bl: var(--panel-hi); --be: var(--surface-page); }
+.ore-btn--dark:hover:not(:disabled) { --bf: var(--surface-raised); --bh: var(--raised-hi); --bl: var(--raised-lo); }
+.ore-btn--dark:active:not(:disabled) { --bf: var(--surface-page); --bh: var(--panel-hi); --bl: var(--tab-lo); }
+.ore-btn.ore-btn--dark:disabled { --bf: var(--surface-page); border-color: var(--outline); color: var(--ink-faint); box-shadow: inset 2px 2px 0 var(--panel-hi), inset -2px -2px 0 var(--tab-lo); }
+.ore-btn--destructive { --bf: var(--red); --bh: var(--red-hi); --bl: var(--red-lo); --be: var(--red-edge); }
+.ore-btn--destructive:hover:not(:disabled) { --bf: var(--red-hover); --bh: var(--red-hover-hi); --bl: var(--red-hover-lo); }
+.ore-btn--destructive:active:not(:disabled) { --bf: var(--red-pressed); --bh: var(--red-pressed-hi); --bl: var(--red-pressed-lo); }
+/* pressed: the band closes and the face drops 2 units; margin keeps the layout still */
+.ore-btn:active:not(:disabled) { min-height: calc(44px - var(--band, 4px)); margin-top: var(--band, 4px); padding-bottom: 0; box-shadow: inset 2px 2px 0 var(--bh), inset -2px -2px 0 var(--bl); }
+.ore-btn:disabled { --bf: var(--light-200); border-color: var(--light-400); color: var(--ink-disabled); text-shadow: none; cursor: not-allowed; box-shadow: inset 0 calc(var(--band, 4px) * -1) 0 var(--light-300); }
+
+/* Toggle: segments in a row, one selected */
+.ore-toggle__group { display: flex; align-items: flex-end; }
+.ore-seg { flex: 1; --bf: var(--light-200); --bh: var(--light-200-hi); --bl: var(--light-200-lo); --be: var(--surface-raised); --bt: var(--ink-dark); }
+.ore-seg + .ore-seg { margin-left: -2px; }
+.ore-seg:hover:not(:disabled) { --bf: var(--light-100); --bh: var(--light-100-hi); --bl: var(--light-100-lo); }
+.ore-seg[aria-checked="true"] { --bf: var(--green); --bh: var(--green-hi); --bl: var(--green-lo); --bt: var(--ink); min-height: 40px; padding-bottom: 0; box-shadow: inset 2px 2px 0 var(--bh), inset -2px -2px 0 var(--bl); }
+.ore-seg[aria-checked="true"]:hover:not(:disabled) { --bf: var(--green-hover); --bh: var(--green-hover-hi); --bl: var(--green-hover-lo); }
+.ore-seg:active:not(:disabled):not([aria-checked="true"]) { --bf: var(--light-300); --bh: var(--light-300-hi); --bl: var(--light-300-lo); min-height: 40px; padding-bottom: 0; box-shadow: inset 2px 2px 0 var(--bh), inset -2px -2px 0 var(--bl); }
+.ore-seg:disabled { --bf: var(--light-200); border-color: var(--light-400); --bt: var(--ink-disabled); cursor: not-allowed; box-shadow: inset 0 -4px 0 var(--light-300); }
+.ore-seg[aria-checked="true"]:disabled { min-height: 40px; box-shadow: none; }
+.ore-seg[aria-checked="true"]::after, .ore-tab[aria-selected="true"]::after { content: ""; position: absolute; left: 50%; bottom: 0; width: 44px; height: 2px; margin-left: -22px; background: var(--ink); }
+.ore-seg:disabled[aria-checked="true"]::after { background: var(--ink-disabled); }
+
+/* Tabs: unselected tabs are raised, the selected one is pressed in and underlined */
+.ore-tabs { display: flex; align-items: flex-end; }
+.ore-tab { flex: 1; --bf: var(--surface-panel); --bh: var(--panel-hi-strong); --bl: var(--panel-hi); --be: var(--surface-page); }
+.ore-tab + .ore-tab { margin-left: -2px; }
+.ore-tab:hover { --bf: var(--surface-raised); --bh: var(--raised-hi); --bl: var(--raised-lo); }
+.ore-tab[aria-selected="true"], .ore-tab:active { --bf: var(--surface-page); --bh: var(--panel-hi); --bl: var(--tab-lo); min-height: 40px; padding-bottom: 0; box-shadow: inset 2px 2px 0 var(--bh), inset -2px -2px 0 var(--bl); }
+
+/* Field wrapper */
+.ore-field { display: flex; flex-direction: column; gap: var(--space-1); color: var(--ink); }
+.ore-field__label { color: var(--ink); }
+.ore-field.is-disabled .ore-field__label { color: var(--ink-muted); }
+.ore-field__help { color: var(--ink-muted); }
+.ore-field__error { color: var(--ink); }
+.ore-field__error::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 6px; background: var(--red); }
+
+/* Text field: a dark well with a shaded top edge */
+.ore-input { display: block; width: 100%; min-height: 44px; padding: 0 var(--space-3); background: var(--surface-page); color: var(--ink); border: 2px solid var(--outline); border-radius: var(--radius-none); box-shadow: var(--field-well); text-align: left; }
+.ore-input::placeholder { color: var(--ink-placeholder); opacity: 1; }
+.ore-input.is-error { border-color: var(--red); }
+.ore-input:disabled { background: var(--light-200); color: var(--ink-disabled); border-color: var(--light-400); box-shadow: inset 2px 2px 0 var(--light-300); cursor: not-allowed; }
+.ore-input:disabled::placeholder { color: var(--ink-disabled); }
+
+/* Checkbox and radio */
+.ore-choice { display: flex; flex-direction: column; gap: var(--space-1); color: var(--ink); }
+.ore-choice__row { position: relative; display: inline-flex; align-items: center; gap: var(--space-3); cursor: pointer; }
+.ore-choice__input { position: absolute; left: 0; top: 50%; width: 24px; height: 24px; margin: -12px 0 0; opacity: 0; }
+.ore-choice__help { padding-left: 36px; }
+.ore-choice__text { color: var(--ink); }
+.ore-box { display: inline-flex; align-items: center; justify-content: center; flex: none; box-sizing: border-box; width: 24px; height: 24px; background: var(--light-400); border: 2px solid var(--outline); border-radius: var(--radius-none); color: transparent; box-shadow: inset 2px 2px 0 var(--grey-hi), inset -2px -2px 0 var(--grey-lo); }
+.ore-box svg { display: block; }
+.ore-choice__input:checked + .ore-box { background: var(--green); color: var(--ink); box-shadow: inset 2px 2px 0 var(--green-hi), inset -2px -2px 0 var(--green-lo); }
+.ore-choice__row:hover .ore-choice__input:not(:disabled) + .ore-box { background: var(--grey-hover); box-shadow: inset 2px 2px 0 var(--grey-hover), inset -2px -2px 0 var(--grey-hover-lo); }
+.ore-choice__row:hover .ore-choice__input:not(:disabled):checked + .ore-box { background: var(--green-hover); box-shadow: inset 2px 2px 0 var(--green-hover-hi), inset -2px -2px 0 var(--green-hover-lo); }
+.ore-choice__row:active .ore-choice__input:not(:disabled) + .ore-box { background: var(--grey-pressed); box-shadow: inset 2px 2px 0 var(--grey-pressed), inset -2px -2px 0 var(--grey-pressed-lo); }
+.ore-choice__row:active .ore-choice__input:not(:disabled):checked + .ore-box { background: var(--green-pressed); box-shadow: inset 2px 2px 0 var(--green-pressed-hi), inset -2px -2px 0 var(--green-pressed-lo); }
+.ore-choice__input:disabled + .ore-box { background: var(--light-200); border-color: var(--light-400); box-shadow: none; }
+.ore-choice__input:disabled:checked + .ore-box { color: var(--light-400); }
+.ore-choice__input:disabled ~ .ore-choice__text { color: var(--ink-muted); }
+.ore-choice__row:has(.ore-choice__input:disabled) { cursor: not-allowed; }
+
+/* radio: a diamond with a white centre */
+.ore-box--radio { width: 16px; height: 16px; margin: 4px; transform: rotate(45deg); }
+.ore-dot { width: 6px; height: 6px; background: transparent; }
+.ore-choice__input:checked + .ore-box--radio .ore-dot { background: var(--ink); box-shadow: inset -2px -2px 0 var(--light-300); }
+.ore-choice__input:disabled:checked + .ore-box--radio .ore-dot { background: var(--light-400); box-shadow: none; }
+
+/* Switch: a track with an I or O glyph and a 28px thumb that slides over it */
+.ore-switch { position: relative; flex: none; width: 54px; height: 28px; margin: 0; padding: 0; border: 0; background: none; cursor: pointer; }
+.ore-switch__track { position: absolute; left: 0; right: 0; bottom: 0; height: 24px; box-sizing: border-box; background: var(--light-400); border: 2px solid var(--outline); box-shadow: inset 2px 2px 0 var(--grey-hi), inset -2px -2px 0 var(--grey-lo); }
+.ore-switch[aria-checked="true"] .ore-switch__track { background: var(--green); box-shadow: inset 2px 2px 0 var(--green-hi), inset -2px -2px 0 var(--green-lo); }
+.ore-switch[aria-checked="true"]:hover:not(:disabled) .ore-switch__track { background: var(--green-hover); box-shadow: inset 2px 2px 0 var(--green-hover-hi), inset -2px -2px 0 var(--green-hover-lo); }
+.ore-switch__glyph { position: absolute; bottom: 0; display: flex; align-items: center; justify-content: center; width: 26px; height: 24px; font-size: 12px; line-height: 1; font-weight: 700; color: var(--field-shade); }
+.ore-switch[aria-checked="false"] .ore-switch__glyph { right: 0; }
+.ore-switch[aria-checked="true"] .ore-switch__glyph { left: 0; color: var(--ink); }
+.ore-switch__thumb { position: absolute; bottom: 0; left: 0; box-sizing: border-box; width: 28px; height: 28px; background: var(--light-200); border: 2px solid var(--outline); box-shadow: inset 0 -4px 0 var(--surface-raised), inset 2px 2px 0 var(--light-200-hi), inset -2px -6px 0 var(--light-200-lo); }
+.ore-switch[aria-checked="true"] .ore-switch__thumb { left: auto; right: 0; }
+.ore-switch:hover:not(:disabled) .ore-switch__thumb { background: var(--light-100); box-shadow: inset 0 -4px 0 var(--surface-raised), inset 2px 2px 0 var(--light-100-hi), inset -2px -6px 0 var(--light-100-lo); }
+.ore-switch:active:not(:disabled) .ore-switch__thumb { background: var(--light-300); box-shadow: inset 0 -4px 0 var(--surface-raised), inset 2px 2px 0 var(--light-300-hi), inset -2px -6px 0 var(--light-300-lo); }
+.ore-switch:disabled { cursor: not-allowed; }
+.ore-switch:disabled .ore-switch__track { background: var(--light-200); border-color: var(--light-400); box-shadow: none; }
+.ore-switch:disabled .ore-switch__glyph, .ore-switch[aria-checked="true"]:disabled .ore-switch__glyph { color: var(--ink-disabled); }
+.ore-switch:disabled .ore-switch__thumb { background: var(--light-200); border-color: var(--light-400); box-shadow: inset 0 -4px 0 var(--light-300); }
+
+/* Slider: a segmented rail under a native range input */
+.ore-slider-field { display: flex; flex-direction: column; gap: var(--space-2); color: var(--ink); }
+.ore-slider__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.ore-slider__value { color: var(--ink); }
+.ore-slider-field.is-disabled .ore-field__label { color: var(--ink-muted); }
+.ore-slider__control { position: relative; height: 28px; }
+.ore-slider__input { position: relative; z-index: 1; -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 28px; margin: 0; padding: 0; background: transparent; cursor: pointer; }
+.ore-slider__rail {
+  --fill: calc(14px + (100% - 28px) * var(--p, 0));
+  --seg: var(--outline); --face: var(--light-400); --top: var(--grey-hi); --bot: var(--grey-lo);
+  position: absolute; left: 0; right: 0; top: 50%; height: 12px; margin-top: -6px; box-sizing: border-box; border: 2px solid var(--outline);
+  background:
+    repeating-linear-gradient(to right, transparent 0, transparent calc(10% - 2px), var(--seg) calc(10% - 2px), var(--seg) 10%),
+    linear-gradient(to right, var(--green-hi) var(--fill), var(--top) var(--fill)) top / 100% 2px no-repeat,
+    linear-gradient(to right, var(--green-lo) var(--fill), var(--bot) var(--fill)) bottom / 100% 2px no-repeat,
+    linear-gradient(to right, var(--green) var(--fill), var(--face) var(--fill));
+}
+.ore-slider__input:disabled + .ore-slider__rail { --seg: var(--light-400); --face: var(--light-200); --top: var(--light-200-hi); --bot: var(--light-200-lo); border-color: var(--light-400);
+  background:
+    repeating-linear-gradient(to right, transparent 0, transparent calc(10% - 2px), var(--seg) calc(10% - 2px), var(--seg) 10%),
+    linear-gradient(var(--face), var(--face)); }
+.ore-slider__input::-webkit-slider-runnable-track { height: 28px; background: transparent; }
+.ore-slider__input::-moz-range-track { height: 28px; background: transparent; }
+.ore-slider__input::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: 28px; height: 28px; background: var(--light-200); border: 2px solid var(--outline); border-radius: var(--radius-none); box-shadow: inset 0 -4px 0 var(--surface-raised), inset 2px 2px 0 var(--light-200-hi), inset -2px -6px 0 var(--light-200-lo); }
+.ore-slider__input::-moz-range-thumb { box-sizing: border-box; width: 28px; height: 28px; background: var(--light-200); border: 2px solid var(--outline); border-radius: var(--radius-none); box-shadow: inset 0 -4px 0 var(--surface-raised), inset 2px 2px 0 var(--light-200-hi), inset -2px -6px 0 var(--light-200-lo); }
+.ore-slider__input:disabled { cursor: not-allowed; }
+.ore-slider__input:disabled::-webkit-slider-thumb { border-color: var(--light-400); box-shadow: inset 0 -4px 0 var(--light-300), inset 2px 2px 0 var(--light-200-hi); }
+.ore-slider__input:disabled::-moz-range-thumb { border-color: var(--light-400); box-shadow: inset 0 -4px 0 var(--light-300), inset 2px 2px 0 var(--light-200-hi); }
+
+/* Dropdown: a secondary button with a chevron */
+.ore-dd { position: relative; }
+.ore-dd__btn { display: flex; width: 100%; justify-content: space-between; text-align: left; }
+.ore-dd__btn[aria-expanded="true"] { --bf: var(--light-300); --bh: var(--light-300-hi); --bl: var(--light-300-lo); min-height: 40px; margin-top: 4px; padding-bottom: 0; box-shadow: inset 2px 2px 0 var(--bh), inset -2px -2px 0 var(--bl); }
+.ore-dd__btn.is-error { border-color: var(--red); }
+.ore-dd__placeholder { color: var(--ink-disabled); }
+.ore-dd__chev { flex: none; color: var(--ink-dark); }
+.ore-dd__btn:disabled .ore-dd__chev { color: var(--ink-disabled); }
+.ore-dd__menu { position: absolute; z-index: 10; top: calc(100% + var(--space-1)); left: 0; right: 0; margin: 0; padding: 0; list-style: none; background: var(--surface-panel); border: 2px solid var(--outline); border-radius: var(--radius-none); box-shadow: inset 0 2px 0 var(--panel-hi); }
+.ore-dd__opt { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-4); color: var(--ink); cursor: pointer; }
+.ore-dd__opt + .ore-dd__opt { border-top: 2px solid var(--panel-hi); }
+.ore-dd__opt.is-active { background: var(--surface-raised); }
+.ore-dd__opt svg { visibility: hidden; }
+.ore-dd__opt[aria-selected="true"] svg { visibility: visible; }
+
+/* Tag: a flat colored square, no outline */
+.ore-tag { display: inline-flex; align-items: center; height: 18px; padding: 0 var(--space-1); background: var(--tag-neutral); color: var(--ink); border-radius: var(--radius-none); white-space: nowrap; }
+.ore-tag--primary { background: var(--tag-primary); color: var(--ink-dark); }
+.ore-tag--info { background: var(--tag-info); color: var(--ink-dark); }
+.ore-tag--notice { background: var(--tag-notice); color: var(--ink-dark); }
+.ore-tag--warning { background: var(--tag-warning); color: var(--ink-dark); }
+.ore-tag--realms { background: var(--tag-realms); color: var(--ink-dark); }
+
+/* Dialog: outlined frame, panel header, dark body, panel footer */
+.ore-scrim { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: var(--space-8); }
+.ore-scrim::before { content: ""; position: absolute; inset: 0; background: var(--outline); opacity: .7; }
+.ore-dialog { position: relative; display: flex; flex-direction: column; box-sizing: border-box; width: 100%; max-width: 428px; background: var(--surface-page); color: var(--ink); border: 2px solid var(--outline); border-radius: var(--radius-none); }
+.ore-dialog:focus { outline: none; }
+.ore-dialog__header { position: relative; display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 48px; background: var(--surface-panel); box-shadow: inset 0 2px 0 var(--panel-hi-strong), inset 0 -2px 0 var(--panel-hi); }
+.ore-dialog__title { margin: 0; text-align: center; color: var(--ink); }
+.ore-dialog__icon { position: absolute; top: 50%; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; margin: -16px 0 0; padding: 0; background: none; border: 0; color: var(--ink); cursor: pointer; }
+.ore-dialog__icon--back { left: 8px; }
+.ore-dialog__icon--close { right: 8px; }
+.ore-dialog__icon:hover { background: var(--surface-raised); }
+.ore-dialog__body { padding: var(--space-4); color: var(--ink); }
+.ore-dialog__body > :first-child { margin-top: 0; }
+.ore-dialog__body > :last-child { margin-bottom: 0; }
+.ore-dialog__section { padding: var(--space-4); border-top: 2px solid var(--panel-hi); }
+.ore-dialog__footer { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); background: var(--surface-panel); box-shadow: inset 0 2px 0 var(--panel-hi); }
+
+/* Panel and ListItem: tiles with a light top edge and a dark line beneath */
+.ore-panel { box-sizing: border-box; padding: var(--space-4); background: var(--surface-panel); color: var(--ink); box-shadow: var(--panel-tile); }
+.ore-panel__header { margin: 0 0 var(--space-2); }
+.ore-panel > * + * { margin-top: var(--space-4); }
+.ore-panel > .ore-panel__header + * { margin-top: 0; }
+.ore-row { display: flex; align-items: stretch; background: var(--surface-panel); color: var(--ink); box-shadow: var(--panel-tile); }
+.ore-row + .ore-row { margin-top: 4px; }
+.ore-row__media { display: flex; align-items: center; padding: var(--space-2) 0 var(--space-2) var(--space-4); }
+.ore-row__main { flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: var(--space-3) var(--space-4); }
+.ore-row__label { color: var(--ink); }
+.ore-row__desc { color: var(--ink-muted); }
+.ore-row__data { display: flex; flex-direction: column; justify-content: center; padding: var(--space-2) var(--space-4); text-align: right; color: var(--ink-muted); }
+.ore-row__trailing { display: flex; align-items: center; padding: var(--space-2) var(--space-4); }
+.ore-row__cell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1); padding: var(--space-2) var(--space-4); border-left: 2px solid var(--surface-page); }
+.ore-row__icon { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: var(--light-300); color: var(--ink-dark); }
+.ore-row__cell-label { color: var(--ink); }
+
+/* Notice */
+.ore-notice { display: flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 36px; padding: var(--space-2) var(--space-4); border: 2px solid var(--outline); border-radius: var(--radius-none); text-align: center; }
+.ore-notice--important { background: var(--yellow); color: var(--ink-dark); }
+.ore-notice--info { background: var(--blue); color: var(--ink); }
+
+/* Tooltip */
+.ore-tooltip { position: relative; display: inline-block; padding: var(--space-1) var(--space-2); background: var(--blue); color: var(--ink); border-radius: var(--radius-pixel); }
+.ore-tooltip::after { content: ""; position: absolute; top: 100%; right: var(--space-2); width: 0; height: 0; border-style: solid; border-width: 6px 6px 0 0; border-color: var(--blue) transparent transparent transparent; }
+
+/* Progress */
+.ore-progress-wrap { display: flex; flex-direction: column; gap: var(--space-1); color: var(--ink); }
+.ore-progress { box-sizing: border-box; height: 16px; background: var(--surface-page); border: 2px solid var(--outline); border-radius: var(--radius-none); box-shadow: inset 0 2px 0 var(--field-shade); }
+.ore-progress__bar { height: 100%; background: var(--blue); }
+
+/* ===== Bedrock Editor =====
+   The creator tool reuses the Ore palette in a dense desktop layout set in Noto Sans.
+   Inside .ore-editor raised controls are flat: --band is 0, so a button is outline 2, highlight 2, face, lowline 2, outline 2 (44px). */
+.ore-editor { --band: 0px; box-sizing: border-box; color: var(--ink); font-family: var(--font-text); font-size: 16px; line-height: 22px; }
+.ore-editor *, .ore-editor *::before, .ore-editor *::after { box-sizing: border-box; }
+.ore-editor .ore-btn, .ore-editor .ore-dd__btn { font-family: var(--font-text); font-size: 16px; line-height: 22px; font-weight: 400; padding: 0 var(--space-3); }
+.ore-editor .ore-btn--secondary { --bh: var(--editor-light-hi); --bl: var(--editor-light-lo); --be: var(--light-200); }
+.ore-editor .ore-btn--secondary:hover:not(:disabled) { --bf: var(--light-100); --bh: var(--light-100-hi); --bl: var(--light-100-lo); }
+.ore-editor .ore-btn--secondary:active:not(:disabled) { --bf: var(--light-300); --bh: var(--light-300-hi); --bl: var(--light-300-lo); }
+.ore-editor .ore-dd__btn { min-height: 36px; }
+.ore-editor .ore-dd__btn[aria-expanded="true"] { min-height: 36px; margin-top: 0; padding-bottom: 0; }
+.ore-editor .ore-dd__menu { box-shadow: none; }
+.ore-editor .ore-dd__opt { min-height: 36px; padding: 0 var(--space-3); }
+.ore-editor .ore-field__label, .ore-editor .ore-choice__text { font-family: var(--font-text); font-size: 16px; line-height: 22px; }
+
+/* Shell: menu, toolbar, rail, panes, viewport, status */
+.ore-shell { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--surface-page); border: 2px solid var(--outline); overflow: hidden; }
+.ore-shell__body { display: flex; flex: 1; min-height: 0; }
+.ore-shell__viewport { position: relative; flex: 1; min-width: 0; min-height: 0; overflow: hidden; background: var(--surface-sunken); border: 2px solid var(--editor-accent); }
+.ore-shell__side { display: flex; flex: none; min-height: 0; }
+.ore-shell__side--left { border-right: 2px solid var(--outline); }
+.ore-shell__side--right { border-left: 2px solid var(--outline); }
+
+/* Menu bar: a 25px strip under a 2px outline line */
+.ore-menubar { display: flex; align-items: stretch; flex: none; height: 27px; padding: 0; margin: 0; background: var(--surface-panel); border-top: 2px solid var(--outline); font-size: 14px; line-height: 18px; }
+.ore-menubar__item { display: flex; align-items: center; padding: 0 var(--space-2); margin: 0; border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer; }
+.ore-menubar__item:hover, .ore-menubar__item[aria-expanded="true"] { background: var(--surface-raised); }
+.ore-menubar__item:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+/* Toolbar: 60px, buttons put the icon above the label, groups split by a groove */
+.ore-toolbar { display: flex; align-items: stretch; flex: none; height: 62px; padding: 0; background: var(--surface-page); border-bottom: 2px solid var(--outline); font-size: 14px; line-height: 18px; overflow: hidden; }
+.ore-toolbar__spacer { flex: 1; }
+.ore-toolbar__sep { flex: none; width: 4px; background: linear-gradient(to right, var(--groove) 2px, var(--tab-lo) 2px); }
+.ore-toolbar__btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 52px; padding: 0 var(--space-2); margin: 0; border: 0; background: none; color: var(--light-200); font: inherit; white-space: nowrap; cursor: pointer; }
+.ore-toolbar__btn:hover:not(:disabled) { background: var(--surface-panel); color: var(--ink); }
+.ore-toolbar__btn:active:not(:disabled) { background: var(--surface-sunken); }
+.ore-toolbar__btn:disabled { color: var(--ink-faint); cursor: not-allowed; }
+.ore-toolbar__btn:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.ore-toolbar__btn--icon { min-width: 36px; }
+
+/* Tool rail: 48px, selected tile is sunken with a white icon */
+.ore-rail { display: flex; flex-direction: column; flex: none; width: 48px; padding: 2px 0 0; margin: 0; background: var(--surface-page); border-right: 4px solid var(--outline); }
+.ore-rail__btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 40px; margin: 0; padding: 0; border: 0; background: none; color: var(--ink-faint); cursor: pointer; }
+.ore-rail__btn:hover:not(:disabled) { color: var(--ink); }
+.ore-rail__btn[aria-pressed="true"] { background: var(--surface-sunken); color: var(--ink); }
+.ore-rail__btn:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.ore-rail__sep { height: 2px; margin: 4px 0; background: var(--groove); }
+
+/* Property pane: header bar, then sections of labelled controls */
+.ore-pane { display: flex; flex-direction: column; width: 252px; min-width: 0; background: var(--surface-page); color: var(--ink); }
+.ore-pane--floating { border: 2px solid var(--outline); }
+.ore-pane__header { display: flex; align-items: center; justify-content: space-between; flex: none; height: 33px; padding: 0 var(--space-2) 0 var(--space-3); background: var(--surface-sunken); box-shadow: inset 0 2px 0 var(--outline), inset 0 -2px 0 var(--outline); }
+.ore-pane__title { margin: 0; color: var(--ink); font-size: 16px; line-height: 22px; font-weight: 400; }
+.ore-pane__actions { display: flex; align-items: center; gap: 4px; color: var(--ink-faint); }
+.ore-pane__action { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; }
+.ore-pane__action:hover { color: var(--ink); }
+.ore-pane__action:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.ore-pane__body { flex: 1; min-height: 0; padding: var(--space-2); overflow: auto; }
+.ore-pane__body > * + * { margin-top: var(--space-2); }
+.ore-pane__row { display: flex; align-items: center; gap: var(--space-3); min-height: 44px; }
+.ore-pane__row--stacked { flex-direction: column; align-items: stretch; gap: var(--space-1); }
+.ore-pane__label { flex: none; max-width: 40%; color: var(--ink); font-size: 16px; line-height: 22px; }
+.ore-pane__row > :last-child:not(.ore-pane__label) { flex: 1; min-width: 0; }
+.ore-pane__divider { height: 4px; margin: var(--space-2) calc(var(--space-2) * -1); background: linear-gradient(to bottom, var(--groove) 2px, var(--tab-lo) 2px); }
+.ore-section__head { display: flex; align-items: center; gap: var(--space-2); width: 100%; height: 36px; padding: 0 var(--space-2); margin: 0; border: 0; background: var(--surface-sunken); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.ore-section__head:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.ore-section__caret { flex: none; color: var(--ink-faint); transition: none; }
+.ore-section__head[aria-expanded="false"] .ore-section__caret { transform: rotate(180deg); }
+.ore-section__body { padding: var(--space-2) 0 0; }
+.ore-section__body > * + * { margin-top: var(--space-2); }
+
+/* Number field and Vec3: 42px, 2px raised border, axis letter outside */
+.ore-vec { display: flex; flex-direction: column; gap: var(--space-1); }
+.ore-vec__label { color: var(--ink); }
+.ore-vec__row { display: flex; align-items: center; gap: var(--space-1); }
+.ore-num { display: flex; align-items: center; flex: 1; min-width: 0; gap: 4px; }
+.ore-num__axis { flex: none; width: 12px; text-align: center; font-size: 16px; line-height: 22px; }
+.ore-num__input { flex: 1; min-width: 0; width: 100%; height: 42px; margin: 0; padding: 0 var(--space-2); background: var(--surface-panel); color: var(--ink); border: 2px solid var(--surface-raised); border-radius: 0; font: inherit; text-align: left; -moz-appearance: textfield; appearance: textfield; }
+.ore-num__input::-webkit-outer-spin-button, .ore-num__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ore-num__input:hover:not(:disabled) { border-color: var(--light-400); }
+.ore-num__input:focus-visible { outline: 2px solid var(--focus); outline-offset: 0; }
+.ore-num__input:disabled { color: var(--ink-faint); background: var(--surface-page); cursor: not-allowed; }
+
+/* Search field: a dark well with a light border and a clear button */
+.ore-search { position: relative; display: block; }
+.ore-search__input { display: block; width: 100%; height: 44px; margin: 0; padding: 0 40px 0 var(--space-3); background: var(--surface-sunken); color: var(--ink); border: 2px solid var(--light-400); border-radius: 0; font: inherit; }
+.ore-search__input::placeholder { color: var(--ink-faint); opacity: 1; }
+.ore-search__input:focus-visible { outline: 2px solid var(--focus); outline-offset: 0; }
+.ore-search__input:disabled { color: var(--ink-faint); cursor: not-allowed; }
+.ore-search__clear { position: absolute; right: 6px; top: 50%; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin: -14px 0 0; padding: 0; border: 0; background: none; color: var(--ink); cursor: pointer; }
+.ore-search__clear:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+/* Status bar: 24px under a 4px outline line */
+.ore-statusbar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex: none; height: 28px; padding: 0 var(--space-2); background: var(--surface-panel); border-top: 4px solid var(--outline); color: var(--ink); font-size: 14px; line-height: 18px; white-space: nowrap; overflow: hidden; }
+
+/* Help tooltip: blue with a 1px dark edge inside and a 1px outline outside, optional media on top */
+.ore-help { display: block; box-sizing: border-box; width: 240px; max-width: 100%; background: var(--blue); color: var(--ink); box-shadow: inset 0 0 0 1px var(--blue-edge), 0 0 0 1px var(--outline); font-family: var(--font-text); }
+.ore-help__media { display: block; padding: 4px 4px 0; }
+.ore-help__media > * { display: block; width: 100%; background: var(--surface-sunken); }
+.ore-help__text { padding: var(--space-2) var(--space-3) var(--space-3); }
+.ore-help__title { margin: 0 0 var(--space-1); font-size: 14px; line-height: 18px; font-weight: 700; }
+.ore-help__body { margin: 0; font-size: 14px; line-height: 18px; }
+.ore-icon { display: block; flex: none; }
+
+/* Toolbar slot for custom content such as the hotbar */
+.ore-toolbar__node { display: flex; align-items: center; padding: 0 var(--space-2); }
+
+/* Hotbar: nine 40px tiles with a numbered strip under each; the selected tile has a green outline */
+.ore-hotbar { display: flex; align-items: flex-start; gap: 4px; }
+.ore-hotbar__slot { display: flex; flex-direction: column; width: 40px; margin: 0; padding: 0; border: 0; background: none; color: var(--light-200); font: inherit; cursor: pointer; }
+.ore-hotbar__tile { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--surface-sunken); border: 2px solid transparent; }
+.ore-hotbar__slot[aria-checked="true"] .ore-hotbar__tile { border-color: var(--hotbar-active); }
+.ore-hotbar__slot:hover .ore-hotbar__tile { border-color: var(--surface-raised); }
+.ore-hotbar__slot[aria-checked="true"]:hover .ore-hotbar__tile { border-color: var(--hotbar-active); }
+.ore-hotbar__slot:focus-visible { outline: 2px solid var(--focus); outline-offset: 0; }
+.ore-hotbar__num { display: block; height: 18px; background: var(--surface-panel); text-align: center; font-size: 14px; line-height: 18px; }
+.ore-hotbar__slot[aria-checked="true"] .ore-hotbar__num { color: var(--ink); }
+
+/* Viewport overlays are plain SVG; nothing to style but keep them from stealing the pointer unless asked */
+.ore-compass, .ore-selbox { display: block; pointer-events: none; }
+.ore-gizmo { display: block; overflow: visible; }

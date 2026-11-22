@@ -1,0 +1,263 @@
+---
+name: voxmc
+description: Design and generate Minecraft builds programmatically and export them as schematics. Use when asked to build, generate, design or change a Minecraft structure, house, castle, tower, terrain or any other 3D voxel build, or to create, inspect or preview .schem (WorldEdit, Sponge), .litematic (Litematica), .nbt (structure block) or .mcstructure (Bedrock) files.
+---
+
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+
+# Voxmc
+
+Build Minecraft structures by writing a short TypeScript recipe and running it with the `voxmc`
+command line. The CLI runs the recipe headlessly, checks every block against the block registry
+of the Minecraft version, and writes `.schem`, `.litematic`, `.nbt` or `.mcstructure`. A browser
+viewer and editor lets the user look at the result in 3D and fix details by hand.
+
+## Setup
+
+- The CLI is the npm package `voxmc`. It needs Node 22.18 or later. Use `voxmc` if it is
+  installed (`voxmc --version` answers); otherwise run every command below with `npx voxmc` in
+  place of `voxmc`. Do not pin a version.
+- This text was written against voxmc 0.0.4.
+- Write recipes and outputs in the user's project (for example `minecraft-builds/<name>/`), never
+  inside the skill directory.
+
+## Workflow
+
+Before writing code, settle the footprint, the height, a palette of 4 to 8 blocks and the list of
+components.
+
+1. **Build each component standalone first.** A component is a functional unit (a boat, a shack, a
+   dock section, a lantern post, a roof). Build each one on its own in a small recipe or `Geometry`,
+   never directly inside the big composition. A recipe is an ES module that exports a `Build`:
+
+   ```ts
+   import { Build } from "voxmc";
+
+   export const BUILD = new Build({ seed: 7 });
+
+   BUILD.scope(() => {
+     BUILD.box([0, 0, 0], [8, 0, 6], "minecraft:cobblestone");
+     BUILD.walls([0, 1, 0], [8, 4, 6], "minecraft:oak_planks");
+     BUILD.roofGable([-1, 5, -1], [9, 5, 7], "minecraft:spruce_stairs", { ridge: "x" });
+   });
+   ```
+
+   Start from the closest example in [references/recipe-examples.md](references/recipe-examples.md).
+   Look up every call you are not sure of in [references/builder-api.md](references/builder-api.md)
+   instead of guessing: the API is small and a call that is not listed there does not exist.
+
+2. **Iterate each component until it is genuinely good AND fits.** Whole-build previews flatter a
+   build and hide player-distance defects. Render each component standalone with
+   [run --preview](#run---preview-png-views), framing it with `pos1:pos2` around the component
+   (`<view>@<x1>,<y1>,<z1>:<x2>,<y2>,<z2>`, or `<view>@<x>,<y>,<z>r<radius>` for small details),
+   open the PNGs and iterate until both hold:
+   - **Good:** the shape reads cleanly under close-up renders and passes functional checks (an
+     implied entrance has a real opening at least 2 blocks tall and 1 wide; hulls and enclosures
+     are sealed with no gaps to water or sky; props hold up with no stray blocks or checklist
+     clutter).
+   - **Fits:** its scale, palette and style match the other finished components and the build's
+     theme. Good on its own but clashing is not done.
+
+3. **Only then assemble, one component at a time.** Place one finished component into the
+   composition (with `BUILD.place` or an imported component function), render and check the
+   composition (whole views plus `pos1:pos2` close-ups at the joints), fix clashes, then add the
+   next. Never dump all components in at once and review only at the end.
+
+   Example (fishing dock): build and iterate boat → shack → deck section → lantern post
+   standalone first; then assemble one component at a time, checking the joints (boat mooring,
+   shack doorway onto the deck, post footing) after each addition.
+
+4. **Build and check the summary:**
+
+   ```sh
+   voxmc build house.ts --out out/house.schem
+   ```
+
+   If `build` says `build: FAILED`, fix the recipe and run again; check that the size, the block
+   count and the palette are what you intended.
+5. **Report** to the user: the file path, the size, the block count, and any warnings.
+6. **Preview** when the user wants to see or edit the build (see [Preview](#preview)).
+
+Change the recipe and run `build` again to iterate; it overwrites its outputs.
+
+## Recipe rules
+
+- `+X` is east, `+Y` is up, `+Z` is south. Coordinates are integers, corners are inclusive.
+- Every placement goes inside `BUILD.scope(() => { ... })`.
+- Import only from `"voxmc"` and from your own files by relative path.
+- Blocks are full ids with the `minecraft:` namespace, with properties where the look depends on
+  them: `minecraft:oak_stairs[facing=east,half=top]`. The engine places exactly what you write: it
+  does not connect fences, panes or walls and does not pick stair corners. Rules, value sets and a
+  lookup command for any block are in [references/block-states.md](references/block-states.md).
+- Leaves need `persistent=true`. Doors, beds and tall plants need both halves.
+- Use `BUILD.rng("name")` for randomness, never `Math.random()`.
+- The last write to a cell wins: place masses first, then openings (`carve`), then details.
+
+## Commands
+
+### build
+
+```sh
+voxmc build <recipe> --out <path> [options]
+```
+
+| Option                 | Meaning                                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `--out <path>`         | File to write. Repeat it to write several formats in one run.                                                           |
+| `--format <f>`         | `schem`, `litematic`, `nbt` or `mcstructure`. Default: the extension of `--out`.                                        |
+| `--mc-version <v>`     | Minecraft version (default `26.2`, or `mc_version` from a `voxmc.toml` next to the recipe; also `26.1`, `1.21.11`, `1.21.4`, `1.21.1`). |
+| `--json`               | Print the summary as one JSON document.                                                                                 |
+| `--offline`            | Do not download the block registry.                                                                                     |
+| `--allow <block>`      | Accept a modded block name (or set `allowlist` in a `voxmc.toml` next to the recipe). Repeatable.                    |
+| `--name`, `--author`   | `.litematic` metadata.                                                                                                  |
+| `--schem-version 2\|3` | Sponge schematic version (default 3).                                                                                   |
+| `--air <mode>`         | `.nbt` only: `none` (default), `explicit` or `all`.                                                                     |
+
+Pick the format from what the user will load it with: `.schem` for WorldEdit and
+FastAsyncWorldEdit, `.litematic` for Litematica, `.nbt` for vanilla structure blocks,
+`.mcstructure` for Bedrock Edition. When the user has not said, ask or write `.schem` and
+`.litematic` together:
+
+```sh
+voxmc build house.ts --out out/house.schem --out out/house.litematic
+```
+
+The summary:
+
+```text
+build: OK
+recipe: /home/me/minecraft-builds/house/house.ts
+size: 11×10×9 (X×Y×Z)
+bounds: -1,0,-1 to 9,9,7
+blocks: 274
+block states: 4
+minecraft: 26.2 (DataVersion 4903)
+validation: 26.2 registry, 0 errors
+palette:
+  112 minecraft:oak_planks
+   63 minecraft:cobblestone
+   55 minecraft:spruce_stairs[facing=north,half=bottom]
+   44 minecraft:spruce_stairs[facing=south,half=bottom]
+wrote:
+  /home/me/minecraft-builds/house/out/house.schem (schem, 287 bytes)
+```
+
+- Exit code 0: written. Exit code 1: the recipe threw, validation failed or the export failed,
+  and **nothing was written**. Exit code 2: wrong command line.
+- `errors:` lists unknown blocks (with did-you-mean names), unknown properties and illegal values
+  (with the legal ones), each ending with the recipe position that placed the block
+  `(at file:line:col)`. Fix every one; do not work around the validator.
+- `warnings:` lists things that did not stop the build: what a format could not carry (always
+  read these for `.mcstructure`), non-deterministic code, or
+  `validation skipped: ...` when no registry was available. A build with skipped validation is
+  unchecked: say so in your report.
+- A recipe that throws is reported as one line with its position, for example
+  `error in house.ts: placements must be inside build.scope(...) (at house.ts:12:9)`.
+- The first `build` for a Minecraft version downloads its block registry (about 120 kB) into
+  `~/.cache/voxmc/`. Without network access the build is still exported, unvalidated.
+
+### inspect
+
+```sh
+voxmc inspect <schematic> [--json]
+```
+
+Prints what a `.schem`, `.litematic`, `.nbt` or `.mcstructure` file holds: format and version,
+DataVersion, size, block count, block entities, entities, metadata and the palette with counts.
+Use it to check a file you wrote, or to understand a schematic the user gives you.
+
+### import (schematic back to a recipe)
+
+```sh
+voxmc import <schematic> [-o <recipe>.ts|.mjs] [--force]
+```
+
+Turns a `.schem`, `.litematic`, `.nbt` or `.mcstructure` into a recipe that imports `Build` from
+`"voxmc"` and rebuilds the structure block for block: one constant per block state, runs of
+the same block merged into `BUILD.box(...)`, the rest `BUILD.set(...)`, layer by layer. Use it
+when the user wants to change a build they already have: import it, edit the recipe (or move parts
+of it into your own recipe), then `build` it again.
+
+- `-o` picks the file and the module type: `.ts`, `.mts`, `.mjs` or `.js` (the code is the same
+  plain JavaScript). Without `-o` it writes `<name>.ts`, or `<name>.mjs` on a Node that cannot run
+  TypeScript.
+- Block ids that Minecraft renamed (`chain` to `iron_chain`, `grass` to `short_grass`,
+  `grass_path` to `dirt_path`) are updated when the cached registry knows only the new id, and
+  properties the registry does not know (Bedrock leftovers) are dropped. Both are listed in the
+  header and the output. `--raw` keeps every block exactly as the file has it.
+- Not imported: block-entity data (sign text, chest contents) and entities (item frames, armor
+  stands). The header says how many were left out.
+
+### preview (or view)
+
+```sh
+voxmc preview <schematic-or-run> [--port <n>] [--no-open]
+```
+
+Starts a local server with the 3D viewer and editor and the schematic open in it (`view` is an
+alias, and the target may also be a `run` directory or run id such as `preview 1`), prints
+`Preview URL: http://127.0.0.1:4173/...`, and opens that address in the default browser.
+
+- The command runs until it is stopped. Start it in the background, read the `Preview URL` line
+  from its output and give that address to the user.
+- Pass `--no-open` when there is no desktop browser to open (a remote or headless machine).
+- The file is read again on every page load: after another `build`, tell the user to refresh.
+- In the page the user can turn and fly through the build, limit it to a range of layers, click
+  a block to see and change its state, place and erase blocks, and export the edited build in any
+  of the four formats. Edits live in the browser: if the user changed the build there, ask for
+  the exported file before continuing, and `inspect` it.
+- The viewer comes from the published site through a caching proxy on localhost (first use needs
+  network access), or from a local build of `apps/web` when the skill runs inside a clone of the
+  repository that has one.
+  The schematic is served from this machine either way and is not uploaded.
+
+### run --preview (PNG views)
+
+```sh
+voxmc run <recipe> --preview [--views 'iso;top'] [--out <dir>]
+```
+
+Writes `<dir>/run-NNN/previews_faithful/<view>.png` (default `dist/`), drawn with the game's
+textures, next to a `report.json` and an `.nbt`. Open the PNGs to check the look of a build
+yourself before reporting, when you can read images. Views, separated by semicolons: `iso`,
+`top`, `az<ddd>_el<dd>` (for example `az225_el025`), `orbit<n>_el<dd>`. Append
+`@<x1>,<y1>,<z1>:<x2>,<y2>,<z2>` to any view (for example `iso@10,4,18:22,10,28` or
+`az135_el025@7,5,6:15,13,13`) to point and zoom the camera so the inclusive `pos1`/`pos2` box
+(corners in any order, normalized to min/max) fills the frame, written as
+`previews_faithful/<view>@<minX>,<minY>,<minZ>:<maxX>,<maxY>,<maxZ>.png`. The shorthand
+`@<x>,<y>,<z>r<radius>` (for example `iso@15,6,22r5` or `orbit4_el25@18,5,23r4`) frames a cube of
+radius `r` (`>= 1`) around `(x, y, z)`. Focus is camera framing only: the full build is always
+rendered with surrounding blocks intact and nothing cut or hidden (a focus outside the build warns
+and renders the build from that framing). To inspect an interior, frame the interior target at a
+low elevation looking through an opening (for example `az173_el005@10,7,8:13,8,11`); because the
+PNG rasterizer is orthographic with no in-room eye position or near-plane clipping, any roof, wall
+or railing in front of the target along the view ray still blocks the line of sight — use
+[`preview`](#preview-or-view) when you need to fly inside an enclosed room. The first preview
+downloads the game's block models and textures (about 25 MB, into `~/.cache/voxmc/`); without
+network access blocks are drawn as plain cubes.
+
+### palette
+
+```sh
+voxmc palette near <block> [--family stairs|slab|full|any] [--limit N]
+voxmc palette ramp <from> <to> [--steps N] [--family stairs|slab|full|any]
+voxmc palette show <block>...
+```
+
+Compares blocks by the mean colour of their vanilla textures. `near` lists the blocks closest in
+colour to one block, `ramp` lists blocks that step evenly from one block to another, `show` prints
+the colour of each face of a block. Use `palette ramp` to pick the stops of `gradient(...)` (for
+example a roof that darkens toward the eave); `--family stairs` gives stair blocks for a roof. The
+first use downloads the game's textures (about 25 MB, into `~/.cache/voxmc/`) and writes
+`texture-stats.json` next to them; with `--offline` it fails if they are not cached yet.
+
+## References
+
+- [references/builder-api.md](references/builder-api.md): every method, option and default of the
+  recipe API, coordinates, materials, `Geometry`, rotation, errors, and what does not exist.
+- [references/block-states.md](references/block-states.md): block id and property rules, the
+  properties that matter for builds, rotation and mirroring, versions, per-format caveats.
+- [references/recipe-examples.md](references/recipe-examples.md): three complete recipes (a
+  tower, terrain with a pond, a symmetric pavilion) and a pre-run checklist.
+- [examples](https://github.com/lzif/voxmc/tree/main/packages/voxmc/examples): larger
+  recipes. Online; inside a clone of the repository they run with the same `build` command.

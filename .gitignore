@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+reference/
+node_modules/
+dist/
+coverage/
+.tmp/
+apps/web/static/pack/
+.svelte-kit/
+apps/web/.svelte-kit/
+apps/web/build/

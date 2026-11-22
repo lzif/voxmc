@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+name: pages
+
+# Publishes the web app at https://luki.is-a.dev/voxmc/.
+#
+# The site's built-in pack is vanilla Minecraft: block states, block models and textures of 26.3,
+# taken at build time from InventivetalentDev/minecraft-assets (the files behind
+# https://mcasset.cloud), which holds the assets extracted from the client jar. They belong to
+# Mojang, are not committed here, and reach visitors only as part of the published site.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # InventivetalentDev/minecraft-assets, branch 26.3. Bump the commit to take a newer version.
+  ASSETS_REPO: https://github.com/InventivetalentDev/minecraft-assets.git
+  ASSETS_COMMIT: aaf3b3dbdf72b5723861324984813f3fd87db179
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch the vanilla assets
+        run: |
+          git init -q "$RUNNER_TEMP/assets"
+          cd "$RUNNER_TEMP/assets"
+          git remote add origin "$ASSETS_REPO"
+          git sparse-checkout set --no-cone /assets/minecraft/blockstates /assets/minecraft/models/block /assets/minecraft/textures/block /assets/minecraft/textures/entity
+          git fetch --depth 1 --filter=blob:none origin "$ASSETS_COMMIT"
+          git checkout -q FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$ASSETS_COMMIT"
+      - name: Build the pack
+        run: node apps/web/scripts/build-pack.ts --from "$RUNNER_TEMP/assets/assets/minecraft"
+      - run: pnpm --filter voxmc-web build
+        env:
+          VOXMC_BASE_PATH: /voxmc
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
